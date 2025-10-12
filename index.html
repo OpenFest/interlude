@@ -1,22 +1,24 @@
 <html>
   <head>
-    <title>OpenFest 2021</title>
+    <title>OpenFest</title>
 
     <meta charset="utf-8">
 
-    <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/2.6.2/css/reveal.css">
-    <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/2.6.2/css/theme/night.css">
-    <link type="text/css" rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto+Condensed:300italic,300,400italic,400,700italic,700&subset=latin,cyrillic">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/5.2.1/reveal.min.css" integrity="sha512-ZIo9ivf88U0L1S+0D/npMNTTkjez5B9cK5xIecN4IA2OmtbTNBbPAZo/0cBC195sq7FU7cEOVPwtit37f/+1rQ==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/5.2.1/theme/black.min.css" integrity="sha512-8xTQdrxFqvj1S4G+pM5d0AwjjKm5vHbi6gZwDX2FDq8HHvfPDf1BEIjBC0fvIh/EFiPeGdDVJZtx66b+4veM9g==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+
+    <link href="https://fonts.googleapis.com/css2?family=Sofia+Sans+Condensed:ital,wght@0,1..1000;1,1..1000&family=Sofia+Sans:ital,wght@0,1..1000;1,1..1000&display=swap" rel="stylesheet">
+
     <link rel="stylesheet" type="text/css" href="styles.css">
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/2.6.2/lib/js/head.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/2.6.2/js/reveal.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.6.0/moment.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.6.0/lang/bg.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/ractive.js/0.3.7/ractive.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.6.0/underscore-min.js"></script>
-    <script src="schedule.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/5.2.1/reveal.min.js" integrity="sha512-lRYVCjdH7dCPCzqLL6eBn78p6WGK5pZxgYBgzTQfWlfX7yiZFLt/qHOMSETHUIz2aZIU/KbjwYHiMsmrcVgJnA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/16.3.0/lib/marked.umd.min.js" integrity="sha512-V6rGY7jjOEUc7q5Ews8mMlretz1Vn2wLdMW/qgABLWunzsLfluM0FwHuGjGQ1lc8jO5vGpGIGFE+rTzB+63HdA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.30.1/moment.min.js" integrity="sha512-QoJS4DOhdmG8kbbHkxmB/rtPdN62cGWXAdAFWWJPvUFF1/zxcPSdAnn4HhYZSIlVoLVEJ0LesfNlusgm2bPfnA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.30.1/locale/bg.min.js" integrity="sha512-yO+EE07mmW251gz7RW8ih8qhLz9slH0B60GnePsff2FP7hj5KfvyMBSYfmPDsZknqdsJoxBRWgmIadUuUGmP7w==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/ractive/1.4.4/ractive.min.js" integrity="sha512-XdBEYvgEQ8+dyXVSJ1rl6z/chkpUcaUxzHwv+XiS9DTvPILEOTFDCQ24yWGp1aAct2e1ff/2fXT9CMFmQatLXA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
   </head>
   <body>
     <div class="reveal">
@@ -37,9 +39,9 @@
               <td>{{startTime.format('HH:mm')}}</td>
               <td>{{title}}</td>
               <td>
-                {{#speakers}}
-                  {{name}}
-                {{/speakers}}
+                {{#persons}}
+                  {{public_name}}<br/>
+                {{/persons}}
               </td>
             </tr>
             {{/pastEvents}}
@@ -49,9 +51,9 @@
               <td>{{startTime.format('HH:mm')}}</td>
               <td>{{title}}</td>
               <td>
-                {{#speakers}}
-                  {{name}}
-                {{/speakers}}
+                {{#persons}}
+                  {{public_name}}<br/>
+                {{/persons}}
               </td>
             </tr>
             {{/nextEvent}}
@@ -61,9 +63,9 @@
               <td>{{startTime.format('HH:mm')}}</td>
               <td>{{title}}</td>
               <td>
-                {{#speakers}}
-                  {{name}}
-                {{/speakers}}
+                {{#persons}}
+                  {{public_name}}<br/>
+                {{/persons}}
               </td>
             </tr>
             {{/futureEvents}}
@@ -76,15 +78,15 @@
       <section id="current_talk">
         <h4>В момента</h4>
         <h2>{{currentEvent.title}}</h2>
-        <p>{{currentEvent.abstract}}</p>
+        <div class="wall">{{{marked(currentEvent.abstract)}}}</div>
       </section>
     </script>
 
     <script id="speaker_template" type="text/ractive">
       <section>
         <h4>Лектор</h4>
-        <h2>{{name}}</h2>
-        <p>{{description}}</p>
+        <h2>{{public_name}}</h2>
+        <div class="wall">{{{marked(biography)}}}</div>
       </section>
     </script>
 
@@ -92,7 +94,7 @@
       <section id="next_talk">
         <h4>Следва</h4>
         <h2>{{nextEvent.title}}</h2>
-        <p>{{nextEvent.abstract}}</p>
+        <div class="wall">{{{marked(nextEvent.abstract)}}}</div>
         <h5><i>({{nextEvent.startTime.from(now)}})</i></h5>
       </section>
     </script>
@@ -110,17 +112,17 @@
             {{> current_talk_template}}
           {{/currentEvent}}
 
-          {{#currentEvent.speakers}}
+          {{#currentEvent.persons}}
             {{> speaker_template}}
-          {{/currentEvent.speakers}}
+          {{/currentEvent.persons}}
 
           {{#nextEvent}}
             {{> next_talk_template}}
           {{/nextEvent}}
 
-          {{#nextEvent.speakers}}
+          {{#nextEvent.persons}}
             {{> speaker_template}}
-          {{/nextEvent.speakers}}
+          {{/nextEvent.persons}}
         </section>
       {{/eventCount}}
 
@@ -130,13 +132,63 @@
       </section>
     </script>
 
-    <script type="text/javascript" src="ractive-init.js"></script>
-    <script type="text/javascript" src="reveal-init.js"></script>
+    <script src="schedule.js"></script>
+
     <script type="text/javascript">
-      //  use for green screen background
-      if ($.urlParam('background')) {
-          $('body').css('background-color', $.urlParam('background'));
-      }
+        async function refreshEvent(schedule) {
+            await schedule.update();
+            return ({
+                pastEvents: schedule.pastEvents(),
+                currentEvent: schedule.currentEvent(),
+                nextEvent: schedule.nextEvent(),
+                futureEvents: schedule.futureEvents(),
+                eventCount: schedule.allEvents().length,
+                now: schedule.now(),
+                room: schedule.roomName()
+            });
+        }
+
+        const urlParams = new URLSearchParams(document.location.search);
+
+        window.onload = () => {
+            const schedule = new Schedule(
+                urlParams.get("room"),
+                urlParams.get("date"),
+                urlParams.get('now') ? () => moment(urlParams.get('now')) : undefined,
+            );
+
+            const helpers = Ractive.defaults.data;
+            helpers.marked = x => x ? marked.parse(x) : '';
+
+            refreshEvent(schedule).then(d => {
+                const reactive = new Ractive({
+                    el: '.slides',
+                    template: '#slides_template',
+                    data: d,
+                });
+
+                Reveal.initialize({
+                    controls: false,
+                    progress: false,
+                    loop: true,
+                    autoSlide: 10000,
+                    autoSlideStoppable: false, // needed to hide the play button
+                    width: 1920,
+                    height: 1080,
+                    margin: 0.1,
+                    minScale: 0.2,
+                    maxScale: 5.0,
+                });
+
+                Reveal.on('update-safe', async () => await refreshEvent(schedule).then(d => reactive.set(d)));
+            });
+        }
+    </script>
+    <script type="text/javascript">
+        //  use for green screen background
+        if (urlParams.get('background')) {
+            document.querySelector('body').style.backgroundColor = urlParams.get('background');
+        }
     </script>
   </body>
 </html>

@@ -13,9 +13,9 @@ body,
 .reveal h4,
 .reveal h5,
 .reveal h6 {
-    font-family: "Roboto Condensed", tahoma, verdana, arial, sans-serif;
+    font-family: "Sofia Sans", tahoma, verdana, arial, sans-serif;
     font-weight: bold;
-    -webkit-text-stroke: 0.01em black;
+    /* -webkit-text-stroke: 0.01em black; */ /* This breaks rendering on modern browsersA */ 
 }
 
 #background_video {
@@ -46,4 +46,21 @@ tr.future_event {
 
 tr td:last-child, tr th:last-child {
     text-align: right;
+}
+
+/* Force widths, so it overflows correctly with multiple lecturers or long titles */
+
+tr td:nth-child(1) {
+    width: 5%;
+}
+tr td:nth-child(2) {
+    width: 60%;
+}
+tr td:nth-child(3) {
+    width: 35%;
+}
+
+/* wall of text (e.g. biography/abstract), looks terrible when centered */
+.wall {
+    text-align: justify;
 }

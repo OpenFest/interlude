@@ -1,116 +1,77 @@
-function Schedule(hallId, date, setPageTitle) {
-    var events = [];
+class Schedule {
+	constructor(room, date, nowFunc) {
 
-    var apiEndpointPrefix = 'https://cfp.openfest.org/api/conferences/8';
+		this.apiEndpointPrefix = 'https://cfp.openfest.org/openfest-2025';
 
-    var pageTitle = 'OpenFest';
-    var room = '';
+		this.nextLectureDelayMinutes = 4;  // show the current lecture as next for the first N minutes
 
-    var nextLectureDelayMinutes = 4;  // show the current lecture as next for the first N minutes
+		if(date) this.date = date;
+		this.room = room;
+		this.nowFunc = nowFunc;
 
-    $.getJSON(apiEndpointPrefix + '/halls.json', function(data) {
-        room = data[hallId]['name']['bg'];
-        if (room === undefined) {
-            room = '';
-        }
-    });
 
-    this.update = function() {
-        $.getJSON(apiEndpointPrefix + '/events.json', function(eventsData) {
-            $.getJSON(apiEndpointPrefix + '/slots.json', function(slotsData) {
-                $.each(slotsData, function(slotId, slot) {
-                    $.extend(eventsData[slot['event_id'].toString()], slot);
-                    $.extend(eventsData[slot['event_id'].toString()], {"slotId": slotId});
-                });
-                var scheduleEvents = $.map(eventsData, function(event, eventId) {
-                    event['id'] = eventId;
-                    event['startTime'] = moment(event['starts_at']);
-                    event['endTime'] = moment(event['ends_at']);
-                    event['hallId'] = event['hall_id'];
+		// default to *actual* now if nowFunc not defined
+		this.now = () => moment(this.nowFunc?.call())
+			.subtract(this.nextLectureDelayMinutes, 'minutes');
 
-                    if (event['startTime'].date() !== date) {
-                        return null;
-                    }
-                    if (event['hallId'] !== hallId) {
-                        return null;
-                    }
+		console.log(this.now());
 
-                    return event;
-                });
+		this.roomMap = {
+			'A': 'Зала A',
+			'B': 'Зала B',
+		};
 
-                events = scheduleEvents.sort(function (a,b) {return a['startTime'].isBefore(b['startTime']) ? -1 : 1});
-            });
-        });
-        this.setPageTitle();
-    }
+	}
 
-    this.upcomingEvents = function() {
-        var now = this.referenceTime();
-        return _.select(events, function(event) {
-            return event.startTime.isAfter(now);
-        });
-    }
+	roomName() { return this.roomMap[this.room]; }
 
-    this.nextEvent = function() {
-        return _.first(this.upcomingEvents());
-    }
+	async update() {
+		const response = await fetch(this.apiEndpointPrefix + '/schedule/export/schedule.json?lang=bg');
+		if(!response.ok) { console.log("mrun"); return; }
 
-    this.currentEvent = function() {
-        var latestEvent = _.last(this.pastEvents());
-        if (typeof(latestEvent) != 'undefined' && latestEvent.endTime.isAfter(this.now())) {
-            return latestEvent;
-        } else {
-            return undefined;
-        }
-    }
+		const fullSchedule = await response.json();
+		const days = fullSchedule['schedule']['conference']['days'];
 
-    this.futureEvents = function() {
-        return this.upcomingEvents().splice(1);
-    }
+		// select the current day, fallback to first day of conference
+		const today = this.date ? moment(this.date) : this.now();
+		let day = 0;
+		for(let i = 0; i < days.length; ++i) if(moment(days[i].date).isSame(today, 'day')) day = i;
 
-    this.pastEvents = function() {
-        var now = this.referenceTime();
-        return _.select(events, function(event) {
-            return event.startTime.isBefore(now);
-        });
-    }
+		const schedule = days[day]['rooms'][this.roomMap[this.room]];
 
-    this.allEvents = function() {
-        return events;
-    }
+		this.events = schedule.map(slot => ({
+			startTime: moment(slot.date),
+			endTime: moment(slot.date).add(moment.duration(slot.duration)),
+			...slot,
+		}));
+	}
 
-    this.now = function() {
-        now = $.urlParam("now");
-        if (now) {
-            return moment(now);
-        } else {
-            return moment();
-        }
-    }
+	upcomingEvents() {
+		return this.events.filter(e => e.startTime.isAfter(this.now()));
+	}
 
-    this.referenceTime = function() {
-        return this.now().subtract(nextLectureDelayMinutes, 'minutes');
-    }
+	nextEvent() {
+		return this.upcomingEvents()[0];
+	}
 
-    this.room = function() {
-        return room;
-    }
+	currentEvent() {
+		const latestEvent = this.pastEvents().slice(-1).pop(); // get last, this is a huge js-ism
+		return latestEvent?.endTime.isAfter(this.now()) ? latestEvent : undefined;
+	}
 
-    this.setPageTitle = function() {
-        if (setPageTitle) {
-            $('title').text(pageTitle + " room=" + room + " date=" + date);
-        }
-    }
+	futureEvents() {
+		return this.upcomingEvents().slice(1);
+	}
+
+	pastEvents() {
+		return this.events.filter(e => e.startTime.isBefore(this.now()));
+	}
+
+	allEvents() {
+		return this.events;
+	}
 }
 
-$.urlParam = function(name){
-    var results = new RegExp('[\?&]' + name + '=([^&#]*)').exec(window.location.href);
-    if (results==null){
-       return null;
-    }
-    else{
-       return results[1] || 0;
-    }
-}
+// const urlParams = new URLSearchParams(document.location.search);
 
-var schedule = new Schedule(parseInt($.urlParam('roomId')), parseInt($.urlParam('date')), true);
+// const schedule = Schedule(urlParams.get("room"), urlParams.get("day"), urlParams.get("now"), true).then(x => x);
