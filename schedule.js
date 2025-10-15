@@ -6,15 +6,13 @@ class Schedule {
 		this.nextLectureDelayMinutes = 4;  // show the current lecture as next for the first N minutes
 
 		if(date) this.date = date;
-		this.room = room;
+		if(room) this.room = room;
 		this.nowFunc = nowFunc;
 
 
 		// default to *actual* now if nowFunc not defined
 		this.now = () => moment(this.nowFunc?.call())
 			.subtract(this.nextLectureDelayMinutes, 'minutes');
-
-		console.log(this.now());
 
 		this.roomMap = {
 			'A': 'Зала A',
@@ -23,7 +21,6 @@ class Schedule {
 
 	}
 
-	roomName() { return this.roomMap[this.room]; }
 
 	async update() {
 		const response = await fetch(this.apiEndpointPrefix + '/schedule/export/schedule.json?lang=bg');
@@ -37,14 +34,27 @@ class Schedule {
 		let day = 0;
 		for(let i = 0; i < days.length; ++i) if(moment(days[i].date).isSame(today, 'day')) day = i;
 
-		const schedule = days[day]['rooms'][this.roomMap[this.room]];
 
+		let schedules;
+		if(this.room) schedules = { [this.roomMap[this.room]]: days[day]['rooms'][this.roomMap[this.room]] };
+		else schedules = Object.fromEntries(Object.entries(days[day]['rooms']).filter(([k,v]) => Object.values(this.roomMap).includes(k)));
+
+		this.rooms = Object.entries(schedules).map(([room, schedule]) => new RoomEvents(room, schedule, this.now));
+	}
+
+}
+class RoomEvents {
+	constructor(room, schedule, now) {
+		this.room = room;
+		this.now = now;
 		this.events = schedule.map(slot => ({
 			startTime: moment(slot.date),
 			endTime: moment(slot.date).add(moment.duration(slot.duration)),
 			...slot,
 		}));
 	}
+	roomName() { return this.room; }
+
 
 	upcomingEvents() {
 		return this.events.filter(e => e.startTime.isAfter(this.now()));
@@ -71,7 +81,3 @@ class Schedule {
 		return this.events;
 	}
 }
-
-// const urlParams = new URLSearchParams(document.location.search);
-
-// const schedule = Schedule(urlParams.get("room"), urlParams.get("day"), urlParams.get("now"), true).then(x => x);

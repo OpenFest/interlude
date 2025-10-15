@@ -26,11 +26,11 @@
       </div>
     </div>
 
-    <!-- <video id="background_video" src="background.mp4" loop autoplay /> -->
+    <video id="background_video" src="background.mp4" loop autoplay muted />
     <!-- TODO: fix display of speakers -->
 
     <script id="agenda_template" type="text/ractive">
-      <section id="agenda">
+      <section id="agenda" data-autoslide="10000">
         <h3>{{room}}</h3>
         <table class="reveal">
           <tbody>
@@ -75,7 +75,7 @@
     </script>
 
     <script id="current_talk_template" type="text/ractive">
-      <section id="current_talk">
+      <section id="current_talk" data-autoslide="10000">
         <h4>В момента</h4>
         <h2>{{currentEvent.title}}</h2>
         <div class="wall">{{{marked(currentEvent.abstract)}}}</div>
@@ -83,7 +83,7 @@
     </script>
 
     <script id="speaker_template" type="text/ractive">
-      <section>
+      <section data-autoslide="10000">
         <h4>Лектор</h4>
         <h2>{{public_name}}</h2>
         <div class="wall">{{{marked(biography)}}}</div>
@@ -91,7 +91,7 @@
     </script>
 
     <script id="next_talk_template" type="text/ractive">
-      <section id="next_talk">
+      <section id="next_talk" data-autoslide="10000">
         <h4>Следва</h4>
         <h2>{{nextEvent.title}}</h2>
         <div class="wall">{{{marked(nextEvent.abstract)}}}</div>
@@ -100,10 +100,11 @@
     </script>
 
     <script id="slides_template" type="text/ractive">
-      <section data-state="update-safe">
+      <section data-state="update-safe" data-autoslide="2000">
         <img src="logo.png">
       </section>
 
+      {{#each events}}
       {{#eventCount}}
         <section>
           {{> agenda_template}}
@@ -125,8 +126,9 @@
           {{/nextEvent.persons}}
         </section>
       {{/eventCount}}
+	  {{/each}}
 
-      <section>
+      <section data-autoslide="5000">
         <h1>#OpenFest2021</h1>
         <h2>в Twitter</h2>
       </section>
@@ -137,15 +139,15 @@
     <script type="text/javascript">
         async function refreshEvent(schedule) {
             await schedule.update();
-            return ({
-                pastEvents: schedule.pastEvents(),
-                currentEvent: schedule.currentEvent(),
-                nextEvent: schedule.nextEvent(),
-                futureEvents: schedule.futureEvents(),
-                eventCount: schedule.allEvents().length,
-                now: schedule.now(),
-                room: schedule.roomName()
-            });
+			return { events: schedule.rooms.map(r => ({
+                pastEvents: r.pastEvents(),
+                currentEvent: r.currentEvent(),
+                nextEvent: r.nextEvent(),
+                futureEvents: r.futureEvents(),
+                eventCount: r.allEvents().length,
+                now: r.now(),
+                room: r.roomName()
+			}))};
         }
 
         const urlParams = new URLSearchParams(document.location.search);
@@ -171,8 +173,8 @@
                     controls: false,
                     progress: false,
                     loop: true,
-                    autoSlide: 10000,
-                    autoSlideStoppable: false, // needed to hide the play button
+                    autoSlide: true,
+                    autoSlideStoppable: true, // needed to hide the play button
                     width: 1920,
                     height: 1080,
                     margin: 0.1,
