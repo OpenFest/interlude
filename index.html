@@ -100,6 +100,9 @@
     </script>
 
     <script id="slides_template" type="text/ractive">
+	  <section data-autoslide="50">
+	  </section>
+
       <section data-state="update-safe" data-autoslide="{{waitTime}}">
         <img src="logo.png">
       </section>
@@ -139,10 +142,10 @@
     <script type="text/javascript">
         const urlParams = new URLSearchParams(document.location.search);
 
-        async function refreshEvent(schedule) {
+        async function refreshEvent(schedule, waitTime = 5000) {
             await schedule.update();
             return { 
-                waitTime: urlParams.get('wait-on-startup') ?? 5000,
+                waitTime: waitTime,
                 events: schedule.rooms.map(r => ({
                     pastEvents: r.pastEvents(),
                     currentEvent: r.currentEvent(),
@@ -165,7 +168,7 @@
             const helpers = Ractive.defaults.data;
             helpers.marked = x => x ? marked.parse(x) : '';
 
-            refreshEvent(schedule).then(d => {
+            refreshEvent(schedule, urlParams.get('wait-on-startup') ?? undefined).then(d => {
                 const reactive = new Ractive({
                     el: '.slides',
                     template: '#slides_template',
