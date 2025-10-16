@@ -140,6 +140,9 @@
     <script src="schedule.js"></script>
 
     <script type="text/javascript">
+		// we need to get undefined instead of null for a lot of stuff
+		URLSearchParams.prototype.nget = function(n) { return this.get(n) ?? undefined; }
+
         const urlParams = new URLSearchParams(document.location.search);
 
         async function refreshEvent(schedule, waitTime = 5000) {
@@ -160,15 +163,15 @@
 
         window.onload = () => {
             const schedule = new Schedule(
-                urlParams.get("room"),
-                urlParams.get("date"),
-                urlParams.get('now') ? () => moment(urlParams.get('now')) : undefined,
+                urlParams.nget("room"),
+                urlParams.nget("date"),
+                () => moment(urlParams.nget('now')),
             );
 
             const helpers = Ractive.defaults.data;
             helpers.marked = x => x ? marked.parse(x) : '';
 
-            refreshEvent(schedule, urlParams.get('wait-on-startup') ?? undefined).then(d => {
+            refreshEvent(schedule, urlParams.nget('wait-on-startup')).then(d => {
                 const reactive = new Ractive({
                     el: '.slides',
                     template: '#slides_template',
@@ -180,7 +183,7 @@
                     progress: false,
                     loop: true,
                     autoSlide: true,
-                    autoSlideStoppable: true, // needed to hide the play button
+                    autoSlideStoppable: !urlParams.has('noskip'), // needed to hide the play button
                     width: 1920,
                     height: 1080,
                     margin: 0.1,
@@ -193,10 +196,7 @@
         }
     </script>
     <script type="text/javascript">
-        //  use for green screen background
-        if (urlParams.get('background')) {
-            document.querySelector('body').style.backgroundColor = urlParams.get('background');
-        }
+        document.querySelector('body').style.backgroundColor = urlParams.nget('background');
     </script>
   </body>
 </html>
