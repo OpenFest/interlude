@@ -100,7 +100,7 @@
     </script>
 
     <script id="slides_template" type="text/ractive">
-      <section data-state="update-safe" data-autoslide="2000">
+      <section data-state="update-safe" data-autoslide="{{waitTime}}">
         <img src="logo.png">
       </section>
 
@@ -129,7 +129,7 @@
 	  {{/each}}
 
       <section data-autoslide="5000">
-        <h1>#OpenFest2021</h1>
+        <h1>#OpenFest2025</h1>
         <h2>в Twitter</h2>
       </section>
     </script>
@@ -137,20 +137,23 @@
     <script src="schedule.js"></script>
 
     <script type="text/javascript">
+        const urlParams = new URLSearchParams(document.location.search);
+
         async function refreshEvent(schedule) {
             await schedule.update();
-			return { events: schedule.rooms.map(r => ({
-                pastEvents: r.pastEvents(),
-                currentEvent: r.currentEvent(),
-                nextEvent: r.nextEvent(),
-                futureEvents: r.futureEvents(),
-                eventCount: r.allEvents().length,
-                now: r.now(),
-                room: r.roomName()
-			}))};
+            return { 
+                waitTime: urlParams.get('wait-on-startup') ?? 5000,
+                events: schedule.rooms.map(r => ({
+                    pastEvents: r.pastEvents(),
+                    currentEvent: r.currentEvent(),
+                    nextEvent: r.nextEvent(),
+                    futureEvents: r.futureEvents(),
+                    eventCount: r.allEvents().length,
+                    now: r.now(),
+                    room: r.roomName()
+                })),
+            };
         }
-
-        const urlParams = new URLSearchParams(document.location.search);
 
         window.onload = () => {
             const schedule = new Schedule(
