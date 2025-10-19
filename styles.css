@@ -18,6 +18,10 @@ body,
     /* -webkit-text-stroke: 0.01em black; */ /* This breaks rendering on modern browsersA */ 
 }
 
+.reveal h2 {
+	text-transform: none;
+}
+
 #background_video {
     position: absolute;
     top: 0;
@@ -54,10 +58,10 @@ tr td:nth-child(1) {
     width: 5%;
 }
 tr td:nth-child(2) {
-    width: 60%;
+    width: 65%;
 }
 tr td:nth-child(3) {
-    width: 35%;
+    width: 30%;
 }
 
 /* wall of text (e.g. biography/abstract), looks terrible when centered */

@@ -26,12 +26,12 @@
       </div>
     </div>
 
-    <video id="background_video" src="background.mp4" loop autoplay muted />
+    <video id="background_video" src="background.webm" loop autoplay muted />
     <!-- TODO: fix display of speakers -->
 
     <script id="agenda_template" type="text/ractive">
       <section id="agenda" data-autoslide="10000">
-        <h3>{{room}}</h3>
+        <h2>{{room}}</h2>
         <table class="reveal">
           <tbody>
             {{#pastEvents}}
@@ -104,7 +104,7 @@
 	  </section>
 
       <section data-state="update-safe" data-autoslide="{{waitTime}}">
-        <img src="logo.png">
+        <img src="logo.svg">
       </section>
 
       {{#each events}}
@@ -131,9 +131,15 @@
       {{/eventCount}}
 	  {{/each}}
 
+	  <section id="agenda" data-autoslide="5000">
+        <img src="sponsors.svg">
+      </section>
+      <section id="agenda" data-autoslide="5000">
+        <img src="socials.svg">
+      </section>
+
       <section data-autoslide="5000">
-        <h1>#OpenFest2025</h1>
-        <h2>в Twitter</h2>
+	    <img src="fin.svg">
       </section>
     </script>
 
